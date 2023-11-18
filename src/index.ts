@@ -1,8 +1,15 @@
 import { drizzle } from "drizzle-orm/d1";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
-import { pages } from "../../api/src/schema";
+import { pages } from "./schema";
+import { app } from "./api";
 import { Tinybird } from "@chronark/zod-bird";
+
+export type Bindings = {
+  DB: D1Database;
+  STATUS_QUEUE: Queue<Message>;
+  TINYBIRD_TOKEN: string;
+};
 
 type Message = {
   id: number;
@@ -15,12 +22,7 @@ type Message = {
   status_description: string;
 };
 
-export interface Env {
-  STATUS_QUEUE: Queue<Message>;
-  API_URL: string;
-  DB: D1Database;
-  TINYBIRD_TOKEN: string;
-}
+
 
 const statusPageSchema = z.object({
   page: z.object({
@@ -37,16 +39,13 @@ const statusPageSchema = z.object({
 });
 
 
+
 export default {
-  async fetch(req: Request, env: Env): Promise<Response> {
-    // // util endpoint for testing purposes
-    // await env.STATUS_QUEUE.send({ url: await req.text() });
-    return new Response("Success!");
-  },
-  async queue(batch: MessageBatch<Message>, env: Env): Promise<void> {
+  fetch: app.fetch,
+
+
+  async queue(batch: MessageBatch<Message>, env: Bindings): Promise<void> {
     const tb = new Tinybird({ token: env.TINYBIRD_TOKEN! });
-
-
      const publishEvent = tb.buildIngestEndpoint({
         datasource: "external_status",
         event: z.object({
@@ -86,4 +85,17 @@ export default {
         })
     }
   },
+
+  async scheduled(event:ScheduledController, env: Bindings, ctx:ExecutionContext): Promise<void> {
+    // Write code for updating your API
+
+    const d1 = drizzle(env.DB);
+    const results = await d1.select().from(pages).all( );
+    console.log(results);
+    for await (const result of results) {
+      await env.STATUS_QUEUE.send(result);
+    }
+    console.log("cron processed");
+  },
+
 };

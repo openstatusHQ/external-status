@@ -1,1 +1,0 @@
-# Worker cron scheduler

@@ -1,1 +1,0 @@
-# Queue consumer worker

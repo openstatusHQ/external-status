@@ -3,12 +3,10 @@ import { drizzle } from "drizzle-orm/d1";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { pages } from "./schema";
+import { Bindings } from ".";
 
-type Bindings = {
-  DB: D1Database;
-};
 
-const app = new Hono<{ Bindings: Bindings }>();
+export const app = new Hono<{ Bindings: Bindings }>();
 
 const urlSchema = z.object({ url: z.string().url() });
 const statusPageSchema = z.object({
@@ -122,4 +120,4 @@ app.post("/pages", async (c) => {
 
   return c.json({ status: "page added" });
 });
-export default app;
+
