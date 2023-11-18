@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled src/index.ts --persist-to=../db ",
+    "deploy:wrangler": "wrangler deploy --minify src/index.ts"
+  },
+  "dependencies": {
+    "hono": "3.10.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20231025.0",
+    "wrangler": "3.16.0"
+  }
+}

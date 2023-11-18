@@ -1,0 +1,22 @@
+{
+  "scripts": {
+    "dev": "wrangler dev src/index.ts --persist-to=../db ",
+    "deploy:wrangler": "wrangler deploy --minify src/index.ts",
+    "generate": "drizzle-kit generate:sqlite --out=migrations --schema=src/schema.ts",
+    "migrate": "wrangler d1 migrations apply status-db --local ",
+    "migrate:prod": "wrangler d1 migrations apply status-db ",
+
+    "up": "drizzle-kit up:sqlite --schema=src/schema.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.29.0",
+    "hono": "3.10.1",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20231025.0",
+    "wrangler": "3.16.0",
+    "drizzle-kit": "0.20.2",
+    "better-sqlite3": "9.1.1"
+  }
+}
